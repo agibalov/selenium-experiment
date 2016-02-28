@@ -10,13 +10,13 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.0/angular.min.js"></script>
         <script>
             angular.module('app', [])
-            .controller('AppController', function($scope, $timeout) {
+            .controller('AppController', function($scope, $http) {
                 $scope.message = '';
 
                 $scope.doSomething = function() {
-                    $timeout(function() {
-                        $scope.message = 'hello there';
-                    }, 1000);
+                    $http.get('/api/message').then(function(response) {
+                        $scope.message = response.data.message;
+                    });
                 };
             });
         </script>

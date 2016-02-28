@@ -11,7 +11,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -49,7 +48,7 @@ public class AppTest {
         webDriver.get("http://localhost:8080/");
         webDriver.findElement(By.tagName("button")).click();
         new WebDriverWait(webDriver, 3).until(elementTextIsNotEmpty(By.tagName("h1")));
-        assertEquals("hello there", webDriver.findElement(By.tagName("h1")).getText());
+        assertEquals("hi there", webDriver.findElement(By.tagName("h1")).getText());
     }
 
     private static ExpectedCondition<Boolean> elementTextIsNotEmpty(By by) {
