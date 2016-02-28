@@ -1,0 +1,24 @@
+<!doctype html>
+<html ng-app="app">
+    <head>
+        <title>Hello</title>
+    </head>
+    <body ng-controller="AppController">
+        <h1>{{message}}</h1>
+        <button type="button" ng-click="doSomething()">Do Something</button>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.0/angular.min.js"></script>
+        <script>
+            angular.module('app', [])
+            .controller('AppController', function($scope, $timeout) {
+                $scope.message = '';
+
+                $scope.doSomething = function() {
+                    $timeout(function() {
+                        $scope.message = 'hello there';
+                    }, 1000);
+                };
+            });
+        </script>
+    </body>
+</html>

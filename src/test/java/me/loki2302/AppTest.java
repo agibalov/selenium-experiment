@@ -10,6 +10,9 @@ import org.junit.runners.model.Statement;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
@@ -36,10 +39,21 @@ public class AppTest {
     }
 
     @Test
-    public void dummy() throws MalformedURLException {
+    public void pageTitleShouldSayHello() throws MalformedURLException {
         webDriver.get("http://localhost:8080/");
-        assertEquals("test111", webDriver.getTitle());
-        assertEquals("hello there", webDriver.findElement(By.tagName("body")).getText());
+        assertEquals("Hello", webDriver.getTitle());
+    }
+
+    @Test
+    public void buttonShouldRevealTheMessage() {
+        webDriver.get("http://localhost:8080/");
+        webDriver.findElement(By.tagName("button")).click();
+        new WebDriverWait(webDriver, 3).until(elementTextIsNotEmpty(By.tagName("h1")));
+        assertEquals("hello there", webDriver.findElement(By.tagName("h1")).getText());
+    }
+
+    private static ExpectedCondition<Boolean> elementTextIsNotEmpty(By by) {
+        return input -> !input.findElement(By.tagName("h1")).getText().isEmpty();
     }
 
     public static class WebDriverRule implements TestRule {
