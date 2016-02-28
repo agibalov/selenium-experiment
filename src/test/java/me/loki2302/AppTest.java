@@ -53,7 +53,7 @@ public class AppTest {
     }
 
     private static ExpectedCondition<Boolean> elementTextIsNotEmpty(By by) {
-        return input -> !input.findElement(By.tagName("h1")).getText().isEmpty();
+        return input -> !input.findElement(by).getText().isEmpty();
     }
 
     public static class WebDriverRule implements TestRule {
