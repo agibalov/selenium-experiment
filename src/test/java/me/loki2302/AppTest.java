@@ -12,8 +12,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -21,16 +23,28 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import java.net.MalformedURLException;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = App.class)
+@SpringApplicationConfiguration
 @WebAppConfiguration
 @IntegrationTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class AppTest {
+    @Configuration
+    public static class Config extends App.Config {
+        @Override
+        public MessageProvider messageProvider() {
+            return mock(MessageProvider.class);
+        }
+    }
+
     @Rule
     public final WebDriverRule webDriverRule = new WebDriverRule();
     private WebDriver webDriver;
+
+    @Autowired
+    private MessageProvider messageProvider;
 
     @Before
     public void setWebDriver() {
@@ -45,10 +59,14 @@ public class AppTest {
 
     @Test
     public void buttonShouldRevealTheMessage() {
+        final String TEST_MESSAGE = "hello test";
+
+        when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
+
         webDriver.get("http://localhost:8080/");
         webDriver.findElement(By.tagName("button")).click();
         new WebDriverWait(webDriver, 3).until(elementTextIsNotEmpty(By.tagName("h1")));
-        assertEquals("hi there", webDriver.findElement(By.tagName("h1")).getText());
+        assertEquals(TEST_MESSAGE, webDriver.findElement(By.tagName("h1")).getText());
     }
 
     private static ExpectedCondition<Boolean> elementTextIsNotEmpty(By by) {
