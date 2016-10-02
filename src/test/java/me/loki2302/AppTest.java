@@ -124,8 +124,6 @@ public class AppTest {
             return new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
-                    System.setProperty("webdriver.chrome.driver", "node_modules/chromedriver/bin/chromedriver");
-
                     LoggingPreferences loggingPreferences = new LoggingPreferences();
                     loggingPreferences.enable(LogType.BROWSER, Level.ALL);
 

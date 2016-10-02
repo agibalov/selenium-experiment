@@ -25,4 +25,5 @@ dependencies {
 
 test {
     testLogging.showStandardStreams = true
+    systemProperty 'webdriver.chrome.driver', 'node_modules/chromedriver/bin/chromedriver'
 }
