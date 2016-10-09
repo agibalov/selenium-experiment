@@ -1,5 +1,6 @@
 package me.loki2302;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -7,9 +8,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.model.Statement;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
@@ -25,6 +24,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -79,12 +80,18 @@ public class AppTest {
     }
 
     @Test
-    public void buttonShouldRevealTheMessage() {
+    public void buttonShouldRevealTheMessage() throws IOException {
         final String TEST_MESSAGE = "hello test";
 
         when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
 
         webDriver.get("http://localhost:8080/");
+
+        if(true) {
+            File screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
+            FileUtils.copyFile(screenshot, new File("1.png"));
+        }
+
         webDriver.findElement(By.tagName("button")).click();
 
         String syncScript = String.join("\n",
@@ -96,6 +103,11 @@ public class AppTest {
         ((JavascriptExecutor)webDriver).executeAsyncScript(syncScript);
 
         assertEquals(TEST_MESSAGE, webDriver.findElement(By.tagName("h1")).getText());
+
+        if(true) {
+            File screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
+            FileUtils.copyFile(screenshot, new File("2.png"));
+        }
 
         LogEntries logEntries = webDriver.manage().logs().get(LogType.BROWSER);
 
@@ -132,6 +144,7 @@ public class AppTest {
 
                     webDriver = new ChromeDriver(desiredCapabilities);
                     webDriver.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
+                    webDriver.manage().window().setSize(new Dimension(1366, 768));
 
                     try {
                         base.evaluate();
