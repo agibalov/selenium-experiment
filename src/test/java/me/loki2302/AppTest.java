@@ -92,6 +92,43 @@ public class AppTest {
             FileUtils.copyFile(screenshot, new File("1.png"));
         }
 
+        if(true) {
+            WebElement webElement = webDriver.findElement(By.tagName("button"));
+            Point point = webElement.getLocation();
+            Dimension size = webElement.getSize();
+            int highlightSize = 30;
+            int cx = point.getX() + size.getWidth() / 2 - highlightSize / 2;
+            int cy = point.getY() + size.getHeight() / 2 - highlightSize / 2;
+
+            String highlightScript = String.format(
+                    "(function() { " +
+                    "var el = document.createElement('div');" +
+                    "el.setAttribute('id', 'highlighter');" +
+                    "el.style.position='fixed';" +
+                    "el.style.left='%dpx';" +
+                    "el.style.top='%dpx';" +
+                    "el.style.width='%dpx';" +
+                    "el.style.height='%dpx';" +
+                    "el.style.border='3px solid red';" +
+                    "document.body.appendChild(el); " +
+                    "})()", cx, cy, highlightSize, highlightSize);
+            ((JavascriptExecutor) webDriver).executeScript(highlightScript);
+        }
+
+        if(true) {
+            File screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
+            FileUtils.copyFile(screenshot, new File("2.png"));
+        }
+
+        if(true) {
+            String unhighlightScript =
+                    "(function() { " +
+                    "var el = document.getElementById('highlighter');" +
+                    "document.body.removeChild(el);" +
+                    "})()";
+            ((JavascriptExecutor) webDriver).executeScript(unhighlightScript);
+        }
+
         webDriver.findElement(By.tagName("button")).click();
 
         String syncScript = String.join("\n",
@@ -106,7 +143,7 @@ public class AppTest {
 
         if(true) {
             File screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
-            FileUtils.copyFile(screenshot, new File("2.png"));
+            FileUtils.copyFile(screenshot, new File("3.png"));
         }
 
         LogEntries logEntries = webDriver.manage().logs().get(LogType.BROWSER);
