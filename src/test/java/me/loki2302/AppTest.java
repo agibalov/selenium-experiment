@@ -16,8 +16,12 @@ import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
+import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
@@ -179,9 +183,14 @@ public class AppTest {
                     DesiredCapabilities desiredCapabilities = DesiredCapabilities.chrome();
                     desiredCapabilities.setCapability(CapabilityType.LOGGING_PREFS, loggingPreferences);
 
-                    webDriver = new ChromeDriver(desiredCapabilities);
-                    webDriver.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
-                    webDriver.manage().window().setSize(new Dimension(1366, 768));
+                    ChromeDriver chromeDriver = new ChromeDriver(desiredCapabilities);
+                    chromeDriver.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
+                    chromeDriver.manage().window().setSize(new Dimension(1366, 768));
+
+                    EventFiringWebDriver eventFiringWebDriver = new EventFiringWebDriver(chromeDriver);
+                    eventFiringWebDriver.register(new MyWebDriverEventListener());
+
+                    webDriver = eventFiringWebDriver;
 
                     try {
                         base.evaluate();
@@ -191,6 +200,20 @@ public class AppTest {
                     }
                 }
             };
+        }
+    }
+
+    public static class MyWebDriverEventListener extends AbstractWebDriverEventListener {
+        private final static Logger LOGGER = LoggerFactory.getLogger(MyWebDriverEventListener.class);
+
+        @Override
+        public void beforeClickOn(WebElement element, WebDriver driver) {
+            LOGGER.info("beforeClickOn() element={}", element);
+        }
+
+        @Override
+        public void afterClickOn(WebElement element, WebDriver driver) {
+            LOGGER.info("afterClickOn() element={}", element);
         }
     }
 }
