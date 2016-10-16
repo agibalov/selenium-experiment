@@ -65,13 +65,13 @@ public class AppTest {
     }
 
     @Test
-    public void pageTitleShouldSayHello() throws MalformedURLException {
+    public void angularJsPageTitleShouldSayHello() throws MalformedURLException {
         webDriver.get("http://localhost:8080/angularjs-app.html");
         assertEquals("Hello", webDriver.getTitle());
     }
 
     @Test
-    public void buttonShouldRevealTheMessage_CRUTCH() {
+    public void angularJsButtonShouldRevealTheMessage_CRUTCH() {
         final String TEST_MESSAGE = "hello test";
 
         when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
@@ -84,7 +84,38 @@ public class AppTest {
     }
 
     @Test
-    public void buttonShouldRevealTheMessage() throws IOException {
+    public void angular2ButtonShouldRevealTheMessage() {
+        final String TEST_MESSAGE = "hello test";
+
+        when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
+
+        webDriver.get("http://localhost:8080/angular2-app.html");
+
+        webDriver.findElement(By.tagName("button")).click();
+
+        String syncScript = String.join("\n",
+                "console.log('sync - before');",
+                "var done = arguments[0];",
+                "window.getAngularTestability(document.querySelector('app')).whenStable(function() { console.log('sync - stable'); done(); });",
+                "console.log('sync - after');");
+
+        ((JavascriptExecutor)webDriver).executeAsyncScript(syncScript);
+
+        assertEquals(String.format("message is %s", TEST_MESSAGE), webDriver.findElement(By.tagName("h1")).getText());
+
+        LogEntries logEntries = webDriver.manage().logs().get(LogType.BROWSER);
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        for(LogEntry logEntry : logEntries) {
+            System.out.printf("%s|%s|%s\n",
+                    format.format(new Date(logEntry.getTimestamp())),
+                    logEntry.getLevel(),
+                    logEntry.getMessage());
+        }
+    }
+
+    @Test
+    public void angularJsButtonShouldRevealTheMessage() throws IOException {
         final String TEST_MESSAGE = "hello test";
 
         when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);

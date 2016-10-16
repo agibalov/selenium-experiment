@@ -13,8 +13,10 @@ class ApiClient {
     }
 
     async getMessage(): Promise<string> {
+        console.log('ApiClient::getMessage() before');
         const response: Response = await this.http.get('http://localhost:8080/api/message').toPromise();
         const body: MessageDto = response.json();
+        console.log('ApiClient::getMessage() after');
         return body.message;
     }
 }
@@ -23,7 +25,7 @@ class ApiClient {
     selector: 'app',
     template: `<div>
     <h1>message is {{message}}</h1>
-    <button type="button" (click)="loadMessage()" class="load-message">Load Message</button>    
+    <button type="button" (click)="loadMessage()">Load Message</button>    
   </div>`
 })
 class AppComponent {
@@ -33,9 +35,11 @@ class AppComponent {
     }
 
     async loadMessage(): Promise<void> {
+        console.log('AppComponent::loadMessage(): before');
         this.message = '';
         const message: string = await this.apiClient.getMessage();
         this.message = message;
+        console.log('AppComponent::loadMessage(): after');
     }
 }
 
