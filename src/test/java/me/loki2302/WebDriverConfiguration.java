@@ -29,7 +29,7 @@ public class WebDriverConfiguration {
         chromeDriver.manage().window().setSize(new Dimension(1366, 768));
 
         EventFiringWebDriver eventFiringWebDriver = new EventFiringWebDriver(chromeDriver);
-        eventFiringWebDriver.register(new MyWebDriverEventListener());
+        eventFiringWebDriver.register(myWebDriverEventListener());
 
         return eventFiringWebDriver;
     }
@@ -37,5 +37,10 @@ public class WebDriverConfiguration {
     @Bean
     public WebDriverUtils webDriverUtils() {
         return new WebDriverUtils();
+    }
+
+    @Bean
+    public MyWebDriverEventListener myWebDriverEventListener() {
+        return new MyWebDriverEventListener();
     }
 }

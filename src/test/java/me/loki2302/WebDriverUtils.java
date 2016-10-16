@@ -5,16 +5,36 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class WebDriverUtils {
+    private final static Logger LOGGER = LoggerFactory.getLogger(WebDriverUtils.class);
+
     @Autowired
     private WebDriver webDriver;
+
+    @Value("classpath:/angularjs-sync.js")
+    private Resource angularJsSyncScript;
+
+    @Value("classpath:/angular2-sync.js")
+    private Resource angular2SyncScript;
+
+    @Value("classpath:/highlight.js")
+    private Resource highlightScript;
+
+    @Value("classpath:/unhighlight.js")
+    private Resource unhighlightScript;
 
     public void makeScreenshot(File file) {
         File screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
@@ -38,23 +58,13 @@ public class WebDriverUtils {
     }
 
     public void synchronizeAngularJs() {
-        String syncScript = String.join("\n",
-                "console.log('before');",
-                "var done = arguments[0];",
-                "angular.getTestability(document.body).whenStable(function() { console.log('stable'); done(); });",
-                "console.log('after');");
-
-        ((JavascriptExecutor)webDriver).executeAsyncScript(syncScript);
+        String scriptContent = readResource(angularJsSyncScript);
+        ((JavascriptExecutor)webDriver).executeAsyncScript(scriptContent);
     }
 
     public void synchronizeAngular2() {
-        String syncScript = String.join("\n",
-                "console.log('sync - before');",
-                "var done = arguments[0];",
-                "window.getAngularTestability(document.querySelector('app')).whenStable(function() { console.log('sync - stable'); done(); });",
-                "console.log('sync - after');");
-
-        ((JavascriptExecutor)webDriver).executeAsyncScript(syncScript);
+        String scriptContent = readResource(angular2SyncScript);
+        ((JavascriptExecutor)webDriver).executeAsyncScript(scriptContent);
     }
 
     public void highlight(WebElement webElement) {
@@ -64,27 +74,22 @@ public class WebDriverUtils {
         int cx = point.getX() + size.getWidth() / 2 - highlightSize / 2;
         int cy = point.getY() + size.getHeight() / 2 - highlightSize / 2;
 
-        String highlightScript = String.format(
-                "(function() { " +
-                        "var el = document.createElement('div');" +
-                        "el.setAttribute('id', 'highlighter');" +
-                        "el.style.position='fixed';" +
-                        "el.style.left='%dpx';" +
-                        "el.style.top='%dpx';" +
-                        "el.style.width='%dpx';" +
-                        "el.style.height='%dpx';" +
-                        "el.style.border='3px solid red';" +
-                        "document.body.appendChild(el); " +
-                        "})()", cx, cy, highlightSize, highlightSize);
-        ((JavascriptExecutor) webDriver).executeScript(highlightScript);
+        String scriptContent = readResource(highlightScript);
+        ((JavascriptExecutor)webDriver).executeScript(scriptContent, cx, cy, highlightSize, highlightSize);
     }
 
     public void unhighlight() {
-        String unhighlightScript =
-                "(function() { " +
-                        "var el = document.getElementById('highlighter');" +
-                        "document.body.removeChild(el);" +
-                        "})()";
-        ((JavascriptExecutor) webDriver).executeScript(unhighlightScript);
+        String scriptContent = readResource(unhighlightScript);
+        ((JavascriptExecutor)webDriver).executeScript(scriptContent);
+    }
+
+    private static String readResource(Resource resource) {
+        try {
+            String scriptContent = new String(Files.readAllBytes(resource.getFile().toPath()), Charset.forName("UTF-8"));
+            LOGGER.info("Read {} as {}", resource.getFile(), scriptContent);
+            return scriptContent;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
