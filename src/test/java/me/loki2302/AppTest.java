@@ -66,7 +66,7 @@ public class AppTest {
 
     @Test
     public void pageTitleShouldSayHello() throws MalformedURLException {
-        webDriver.get("http://localhost:8080/");
+        webDriver.get("http://localhost:8080/angularjs-app.html");
         assertEquals("Hello", webDriver.getTitle());
     }
 
@@ -76,7 +76,7 @@ public class AppTest {
 
         when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
 
-        webDriver.get("http://localhost:8080/");
+        webDriver.get("http://localhost:8080/angularjs-app.html");
         webDriver.findElement(By.tagName("button")).click();
 
         new WebDriverWait(webDriver, 3).until(elementTextIsNotEmpty(By.tagName("h1")));
@@ -89,7 +89,7 @@ public class AppTest {
 
         when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
 
-        webDriver.get("http://localhost:8080/");
+        webDriver.get("http://localhost:8080/angularjs-app.html");
 
         if(true) {
             File screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);

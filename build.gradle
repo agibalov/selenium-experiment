@@ -21,6 +21,8 @@ dependencies {
     testCompile 'org.mockito:mockito-all:2.0.2-beta'
     testCompile 'org.springframework.boot:spring-boot-starter-test:1.4.1.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-web:1.4.1.RELEASE'
+    compile project(':angularjs-app')
+    compile project(':angular2-app')
 }
 
 test {

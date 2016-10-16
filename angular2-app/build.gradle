@@ -1,0 +1,50 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.moowork.gradle:gradle-node-plugin:0.13'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'com.moowork.node'
+
+sourceCompatibility = 1.8
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+node {
+    version = '6.6.0'
+    npmVersion = '3.10.3'
+    download = true
+
+    workDir = file("${project.projectDir}/nodejs")
+    nodeModulesDir = file("${project.projectDir}")
+}
+
+clean {
+    delete 'dist'
+}
+
+jar {
+    into('resources') {
+        from('dist') {
+            include 'bundle.js'
+        }
+        from('src') {
+            include 'angular2-app.html'
+        }
+    }
+
+    dependsOn 'webpack'
+}
+
+// TODO: make npm install work with angular2-app's package.json, not with the root one
+
+task webpack(type: NpmTask, dependsOn: 'npmInstall') {
+    args = ['run-script', 'gradle_build']
+}
