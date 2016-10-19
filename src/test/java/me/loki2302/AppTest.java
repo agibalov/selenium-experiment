@@ -78,6 +78,22 @@ public class AppTest {
     }
 
     @Test
+    public void angular2InvokeExposedApi() {
+        final String TEST_MESSAGE = "hello test";
+
+        when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
+
+        webDriver.get("http://localhost:8080/angular2-app.html");
+
+        webDriver.findElement(By.tagName("button")).click();
+        webDriverUtils.synchronizeAngular2();
+
+        Object result = ((JavascriptExecutor)webDriver).executeScript("return window.addNumbers(2, 3);");
+        assertEquals(5L, (long)(Long)result);
+        webDriverUtils.dumpLogs();
+    }
+
+    @Test
     public void angularJsButtonShouldRevealTheMessage() throws IOException {
         final String TEST_MESSAGE = "hello test";
 

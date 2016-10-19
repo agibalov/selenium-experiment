@@ -1,4 +1,4 @@
-import {NgModule, Injectable} from '@angular/core';
+import {NgModule, Injectable, OnInit, OnDestroy} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { Component } from "@angular/core";
 import { HttpModule, Http, Response } from "@angular/http";
@@ -28,8 +28,8 @@ class ApiClient {
     <button type="button" (click)="loadMessage()">Load Message</button>    
   </div>`
 })
-class AppComponent {
-    public message: string = null;
+class AppComponent implements OnInit, OnDestroy {
+    public message: string = '';
 
     constructor(private apiClient: ApiClient) {
     }
@@ -40,6 +40,21 @@ class AppComponent {
         const message: string = await this.apiClient.getMessage();
         this.message = message;
         console.log('AppComponent::loadMessage(): after');
+    }
+
+    addNumbers(a: number, b: number): number {
+        console.log(`someone wants to add ${a} and ${b} (and BTW this.message is ${this.message})`);
+        return a + b;
+    }
+
+    ngOnInit(): void {
+        (<any>window).addNumbers = this.addNumbers.bind(this);
+        console.log('exposed an addNumbers');
+    }
+
+    ngOnDestroy(): void {
+        delete (<any>window).addNumbers;
+        console.log('destroyed an addNumbers');
     }
 }
 
