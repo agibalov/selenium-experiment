@@ -38,6 +38,16 @@ class AppComponent implements OnInit, OnDestroy {
         console.log('AppComponent::loadMessage(): before');
         this.message = '';
         const message: string = await this.apiClient.getMessage();
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await this.apiClient.getMessage();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await this.apiClient.getMessage();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await this.apiClient.getMessage();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await this.apiClient.getMessage();
+
         this.message = message;
         console.log('AppComponent::loadMessage(): after');
     }

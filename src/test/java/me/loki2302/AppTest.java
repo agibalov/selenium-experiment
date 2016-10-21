@@ -70,11 +70,31 @@ public class AppTest {
         webDriver.get("http://localhost:8080/angular2-app.html");
 
         webDriver.findElement(By.tagName("button")).click();
+        // see the nicer solution below
         webDriverUtils.synchronizeAngular2();
+        webDriverUtils.synchronizeAngular2();
+        webDriverUtils.synchronizeAngular2();
+        webDriverUtils.synchronizeAngular2();
+        webDriverUtils.synchronizeAngular2();
+        webDriverUtils.synchronizeAngular2();
+        webDriverUtils.dumpLogs();
 
         assertEquals(String.format("message is %s", TEST_MESSAGE), webDriver.findElement(By.tagName("h1")).getText());
+    }
 
+    @Test
+    public void angular2ButtonShouldRevealTheMessageSmart() {
+        final String TEST_MESSAGE = "hello test";
+
+        when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
+
+        webDriver.get("http://localhost:8080/angular2-app.html");
+
+        webDriver.findElement(By.tagName("button")).click();
+        webDriverUtils.synchronizeAngular2Smart();
         webDriverUtils.dumpLogs();
+
+        assertEquals(String.format("message is %s", TEST_MESSAGE), webDriver.findElement(By.tagName("h1")).getText());
     }
 
     @Test

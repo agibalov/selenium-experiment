@@ -64,7 +64,45 @@ public class WebDriverUtils {
 
     public void synchronizeAngular2() {
         String scriptContent = readResource(angular2SyncScript);
-        ((JavascriptExecutor)webDriver).executeAsyncScript(scriptContent);
+        Object didWork = ((JavascriptExecutor)webDriver).executeAsyncScript(scriptContent);
+        LOGGER.info("didWork={}", didWork);
+    }
+
+    /**
+     * One call to Angular's whenStable() only seems to address one async operation.
+     * Its callback gets called with a single parameter - didWork
+     * (see https://github.com/angular/angular/blob/50c37d45dc8a4f5e38afaf594c9d5017e8eab3bd/modules/%40angular/platform-browser/src/browser/testability.ts#L36)
+     * It's true, when we actually had to wait for something and
+     * false when there was nothing to wait. So, practically, the snippet should be:
+     *
+     * while(true) {
+     *   boolean didWork = doWhenStableSync()
+     *   if(didWork) {
+     *     // there was something to wait for
+     *     // so probably there's even more
+     *     // so we try one more time
+     *     continue;
+     *   }
+     *
+     *   // there was nothing to wait for, so we're done here
+     *   break;
+     * }
+     */
+    private final static int MAX_ANGULAR2_SYNC_ITERATIONS = 100;
+    public void synchronizeAngular2Smart() {
+        String scriptContent = readResource(angular2SyncScript);
+
+        for(int i = 0; i < MAX_ANGULAR2_SYNC_ITERATIONS; ++i) {
+            boolean didWork = (Boolean) ((JavascriptExecutor) webDriver).executeAsyncScript(scriptContent);
+            boolean shouldSyncOneMoreTime = didWork;
+            LOGGER.info("Attempt #{}, shouldSyncOneMoreTime={}", i, shouldSyncOneMoreTime);
+            if(shouldSyncOneMoreTime) {
+                continue;
+            }
+
+            LOGGER.info("Should be stable now");
+            break;
+        }
     }
 
     public void highlight(WebElement webElement) {
