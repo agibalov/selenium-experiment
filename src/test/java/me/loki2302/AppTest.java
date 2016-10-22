@@ -154,7 +154,6 @@ public class AppTest {
         ImageIO.write(screenshot.getImage(), "png", new File("button.png"));
     }
 
-    // Doesn't capture the whole page for some reason :-/
     @Test
     public void canTakeScreenshotOfAnElementWithBlurryOtherElements() throws IOException {
         final String TEST_MESSAGE = "hello test";
@@ -167,9 +166,11 @@ public class AppTest {
         buttonElement.click();
         webDriverUtils.synchronizeAngular2Smart();
 
+        // "radius" around target element to capture
+        final int INDENT = 1000;
         Screenshot screenshot = new AShot()
                 .coordsProvider(new WebDriverCoordsProvider())
-                .imageCropper(new IndentCropper().addIndentFilter(blur()))
+                .imageCropper(new IndentCropper(INDENT).addIndentFilter(blur()))
                 .takeScreenshot(webDriver, buttonElement);
         ImageIO.write(screenshot.getImage(), "png", new File("button-blur.png"));
     }
