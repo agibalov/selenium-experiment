@@ -11,7 +11,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import ru.yandex.qatools.ashot.AShot;
+import ru.yandex.qatools.ashot.Screenshot;
+import ru.yandex.qatools.ashot.coordinates.WebDriverCoordsProvider;
+import ru.yandex.qatools.ashot.cropper.indent.IndentCropper;
+import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
+import ru.yandex.qatools.ashot.shooting.ViewportPastingDecorator;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -19,6 +26,7 @@ import java.net.MalformedURLException;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static ru.yandex.qatools.ashot.cropper.indent.IndentFilerFactory.blur;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -133,6 +141,37 @@ public class AppTest {
         webDriverUtils.makeScreenshot(new File("3.png"));
 
         webDriverUtils.dumpLogs();
+    }
+
+    @Test
+    public void canTakeScreenshotOfJustOneElement() throws IOException {
+        webDriver.get("http://localhost:8080/angular2-app.html");
+
+        WebElement buttonElement = webDriver.findElement(By.tagName("button"));
+        Screenshot screenshot = new AShot()
+                .coordsProvider(new WebDriverCoordsProvider())
+                .takeScreenshot(webDriver, buttonElement);
+        ImageIO.write(screenshot.getImage(), "png", new File("button.png"));
+    }
+
+    // Doesn't capture the whole page for some reason :-/
+    @Test
+    public void canTakeScreenshotOfAnElementWithBlurryOtherElements() throws IOException {
+        final String TEST_MESSAGE = "hello test";
+
+        when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
+
+        webDriver.get("http://localhost:8080/angular2-app.html");
+
+        WebElement buttonElement = webDriver.findElement(By.tagName("button"));
+        buttonElement.click();
+        webDriverUtils.synchronizeAngular2Smart();
+
+        Screenshot screenshot = new AShot()
+                .coordsProvider(new WebDriverCoordsProvider())
+                .imageCropper(new IndentCropper().addIndentFilter(blur()))
+                .takeScreenshot(webDriver, buttonElement);
+        ImageIO.write(screenshot.getImage(), "png", new File("button-blur.png"));
     }
 
     private static ExpectedCondition<Boolean> elementTextIsNotEmpty(By by) {
