@@ -1,5 +1,6 @@
 package me.loki2302;
 
+import io.github.bonigarcia.wdm.ChromeDriverManager;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -18,6 +19,8 @@ import java.util.logging.Level;
 public class WebDriverConfiguration {
     @Bean(destroyMethod = "quit")
     public WebDriver webDriver() {
+        ChromeDriverManager.getInstance().setup();
+
         LoggingPreferences loggingPreferences = new LoggingPreferences();
         loggingPreferences.enable(LogType.BROWSER, Level.ALL);
 
