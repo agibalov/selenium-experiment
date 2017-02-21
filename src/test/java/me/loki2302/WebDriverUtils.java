@@ -2,6 +2,9 @@ package me.loki2302;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.Rectangle;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
@@ -11,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -40,6 +46,30 @@ public class WebDriverUtils {
         File screenshot = ((TakesScreenshot) webDriver).getScreenshotAs(OutputType.FILE);
         try {
             FileUtils.copyFile(screenshot, file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void makeScreenshotAwt(File file) {
+        WebDriver.Window window = webDriver.manage().window();
+        int width = window.getSize().getWidth();
+        int height = window.getSize().getHeight();
+        int left = window.getPosition().getX();
+        int top = window.getPosition().getY();
+
+        Robot robot;
+        try {
+            robot = new Robot();
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
+
+        BufferedImage bufferedImage = robot.createScreenCapture(new java.awt.Rectangle(
+                new java.awt.Point(left, top),
+                new java.awt.Dimension(width, height)));
+        try {
+            ImageIO.write(bufferedImage, "png", file);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

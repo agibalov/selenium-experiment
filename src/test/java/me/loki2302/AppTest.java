@@ -9,6 +9,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -66,7 +68,7 @@ public class AppTest {
         webDriver.get("http://localhost:8080/angularjs-app.html");
         webDriver.findElement(By.tagName("button")).click();
 
-        new WebDriverWait(webDriver, 3).until(elementTextIsNotEmpty(By.tagName("h1")));
+        new WebDriverWait(webDriver, 15).until(elementTextIsNotEmpty(By.tagName("h1")));
         assertEquals(TEST_MESSAGE, webDriver.findElement(By.tagName("h1")).getText());
     }
 
@@ -122,6 +124,12 @@ public class AppTest {
         webDriverUtils.dumpLogs();
     }
 
+    /**
+     * As of Chrome 56.0.2924.87 and ChromeDriver 2.27,
+     * native screenshots do not work - they are always black images.
+     * Probably here's this issue: https://bugs.chromium.org/p/chromedriver/issues/detail?id=1625
+     * The only reliable workaround is to use AWT screenshots {@link AppTest#angularJsButtonShouldRevealTheMessageAwtScreenshots}
+     */
     @Test
     public void angularJsButtonShouldRevealTheMessage() throws IOException {
         final String TEST_MESSAGE = "hello test";
@@ -140,6 +148,28 @@ public class AppTest {
 
         assertEquals(TEST_MESSAGE, webDriver.findElement(By.tagName("h1")).getText());
         webDriverUtils.makeScreenshot(new File("3.png"));
+
+        webDriverUtils.dumpLogs();
+    }
+
+    @Test
+    public void angularJsButtonShouldRevealTheMessageAwtScreenshots() throws IOException {
+        final String TEST_MESSAGE = "hello test";
+
+        when(messageProvider.getMessage()).thenReturn(TEST_MESSAGE);
+
+        webDriver.get("http://localhost:8080/angularjs-app.html");
+        webDriverUtils.makeScreenshotAwt(new File("awt-1.png"));
+
+        WebElement buttonWebElement = webDriver.findElement(By.tagName("button"));
+        webDriverUtils.highlight(buttonWebElement);
+        webDriverUtils.makeScreenshotAwt(new File("awt-2.png"));
+        webDriverUtils.unhighlight();
+        buttonWebElement.click();
+        webDriverUtils.synchronizeAngularJs();
+
+        assertEquals(TEST_MESSAGE, webDriver.findElement(By.tagName("h1")).getText());
+        webDriverUtils.makeScreenshotAwt(new File("awt-3.png"));
 
         webDriverUtils.dumpLogs();
     }

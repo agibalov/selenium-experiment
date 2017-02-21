@@ -21,7 +21,7 @@ dependencies {
     testCompile 'org.mockito:mockito-all:2.0.2-beta'
     testCompile 'org.springframework.boot:spring-boot-starter-test:1.4.1.RELEASE'
     testCompile group: 'ru.yandex.qatools.ashot', name: 'ashot', version: '1.5.2'
-    testCompile 'io.github.bonigarcia:webdrivermanager:1.4.10'
+    testCompile 'io.github.bonigarcia:webdrivermanager:1.6.0'
     compile 'org.springframework.boot:spring-boot-starter-web:1.4.1.RELEASE'
     compile project(':angularjs-app')
     compile project(':angular2-app')
@@ -29,4 +29,5 @@ dependencies {
 
 test {
     testLogging.showStandardStreams = true
+    systemProperty 'java.awt.headless', 'false' // only needed for AWT screenshots
 }
